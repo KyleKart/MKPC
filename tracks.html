@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Track Builder with Piece-ID-Based Rotate Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 1rem;
+            background-color: #030316;
+            color: whitesmoke;
+        }
+
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(6, 100px);
+            grid-template-rows: repeat(6, 100px);
+            margin-bottom: 1rem;
+            gap: 0;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            background: #030316;
+            cursor: pointer;
+            box-sizing: border-box;
+            border: none;
+            overflow: hidden;
+        }
+
+        .cell img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            margin: 0;
+            padding: 0;
+        }
+
+        .palette {
+            margin-bottom: 1rem;
+        }
+
+        .palette button {
+            margin-right: 8px;
+            padding: 0.3rem 0.6rem;
+            font-size: 16px;
+            cursor: pointer;
+            position: relative;
+            display: inline-block;
+            vertical-align: top;
+            text-align: center;
+            width: 100px;
+            user-select: none;
+            background-color: rgba(76, 70, 94, 0.5);
+            transition: background-color 0.3s ease;
+            color: whitesmoke;
+        }
+
+        .palette button.selected {
+            background-color: #2a9df4;
+            border-color: #2a9df4;
+        }
+
+        .palette button .name {
+            display: block;
+            font-size: 12px;
+            margin-top: 4px;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .palette button img {
+            width: 80px;
+            height: 80px;
+            display: block;
+            margin: 0 auto 4px auto;
+            pointer-events: none;
+        }
+
+        label {
+            margin-right: 10px;
+        }
+
+        select,
+        input[type=number] {
+            font-size: 16px;
+            padding: 0.2rem 0.5rem;
+            margin-right: 10px;
+        }
+
+        #generateUrl {
+            padding: 0.5rem 1rem;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #urlOutput {
+            margin-top: 1rem;
+            word-break: break-word;
+        }
+
+        #rotateButton {
+            padding: 0.3rem 0.8rem;
+            font-size: 16px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <label for="trackStyle">Track Style (map):</label>
+        <select id="trackStyle">
+            <optgroup label="SNES - Circuit">
+                <option value="1" selected="selected">Mario Circuit</option>
+                <option value="2">Donut Plains</option>
+                <option value="3">Koopa Beach</option>
+                <option value="4">Choco Island</option>
+                <option value="5">Vanilla Lake</option>
+                <option value="56">Vanilla Lake 2</option>
+                <option value="6">Ghost Valley</option>
+                <option value="7">Bowser's Castle</option>
+                <option value="8">Rainbow Road</option>
+            </optgroup>
+            <optgroup label="GBA - Circuit">
+                <option value="14">Mario Circuit</option>
+                <option value="52">Shy Guy Beach</option>
+                <option value="55">Riverside Park</option>
+                <option value="24">Bowser Castle</option>
+                <option value="21">Boo Lake</option>
+                <option value="17">Cheese Land</option>
+                <option value="54">Luigi Circuit</option>
+                <option value="18">Sky Garden</option>
+                <option value="16">Cheep-Cheep Island</option>
+                <option value="20">Sunset Wilds</option>
+                <option value="19">Snow Land</option>
+                <option value="22">Ribbon Road</option>
+                <option value="23">Yoshi Desert</option>
+                <option value="15">Lakeside Park</option>
+                <option value="53">Bowser Castle 3</option>
+                <option value="25">Rainbow Road</option>
+            </optgroup>
+            <optgroup label="DS - Circuit">
+                <option value="31">Figure 8 Circuit</option>
+                <option value="32">Yoshi Falls</option>
+                <option value="33">Cheep-Cheep Beach</option>
+                <option value="34">Luigi's Mansion</option>
+                <option value="35">Desert Hills</option>
+                <option value="36">Delfino Square</option>
+                <option value="37">Waluigi Pinball</option>
+                <option value="38">Shroom Ridge</option>
+                <option value="39">DK Pass</option>
+                <option value="40">Tick-Tock Clock</option>
+                <option value="41">Mario Circuit</option>
+                <option value="42">Airship Fortress</option>
+                <option value="43">Wario Stadium</option>
+                <option value="44">Peach Gardens</option>
+                <option value="45">Bowser's Castle</option>
+                <option value="46">Rainbow Road</option>
+            </optgroup>
+            <optgroup label="SNES - Battle">
+                <option value="9">Battle course 1</option>
+                <option value="10">Battle course 2</option>
+                <option value="11">Battle course 3</option>
+                <option value="12">Battle course 4</option>
+            </optgroup>
+            <optgroup label="GBA - Battle">
+                <option value="26">Battle course 1</option>
+                <option value="27">Battle course 2 - Thin</option>
+                <option value="28">Battle course 2 - Large</option>
+                <option value="29">Battle course 3</option>
+                <option value="30">Battle course 4</option>
+            </optgroup>
+            <optgroup label="DS - Battle">
+                <option value="47">Nintendo DS</option>
+                <option value="48">Twilight House</option>
+                <option value="49">Palm Shore - Connected</option>
+                <option value="50">Palm Shore - Separate</option>
+                <option value="51">Tart Top</option>
+            </optgroup>
+        </select>
+
+        <label for="lapCount">Laps:</label>
+        <input type="number" id="lapCount" min="1" value="3" style="width: 60px" />
+    </div>
+
+    <div class="palette" style="margin-top:1rem;">
+        <button id="rotateButton" title="Rotate selected piece">Rotate ⟳</button>
+    </div>
+    <div id="grid"></div>
+
+    <button id="generateUrl">Generate URL</button>
+
+    <p id="urlOutput"></p>
+
+    <script>
+        let isMouseDown = false;
+        const gridSize = 36;
+        const grid = document.getElementById('grid');
+        const paletteDiv = document.querySelector('.palette');
+        const rotateDiv = document.getElementById('rotateButton');
+        const urlOutput = document.getElementById('urlOutput');
+        const trackStyleSelect = document.getElementById('trackStyle');
+        const lapCountInput = document.getElementById('lapCount');
+        const rotateButton = document.getElementById('rotateButton');
+
+        const rotationMap = {
+            '0': '1',
+            '1': '2',
+            '2': '3',
+            '3': '0',
+
+            '4': '5',
+            '5': '6',
+            '6': '7',
+            '7': '4',
+
+            '8': '9',
+            '9': '8',
+
+            '11': '11',
+        };
+        const basePieces = [
+            { id: '0', name: 'Start' },
+            { id: '4', name: 'Corner' },
+            { id: '8', name: 'Straight' },
+            { id: '11', name: 'Blank' },
+        ];
+
+        let selectedBaseId = '0';
+        let selectedPieceId = '0';
+        let trackStyle = trackStyleSelect.value;
+        let lapCount = parseInt(lapCountInput.value);
+
+        const trackData = Array(gridSize).fill('11');
+
+        function getPieceImageUrl(mapStyle, pieceId) {
+            return `https://mkpc.malahieude.net/images/pieces/piececircuit${mapStyle}_${pieceId}.png`;
+        }
+
+        function buildPalette() {
+            basePieces.forEach(({ id, name }, index) => {
+                const btn = document.createElement('button');
+                btn.dataset.baseId = id;
+                btn.title = `Piece ${id}: ${name}`;
+                if (index === 0) btn.classList.add('selected');
+
+                const img = document.createElement('img');
+                img.src = getPieceImageUrl(trackStyle, id);
+                btn.appendChild(img);
+
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'name';
+                nameSpan.textContent = name;
+                btn.appendChild(nameSpan);
+
+                btn.addEventListener('click', () => {
+                    paletteDiv.querySelectorAll('button').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+
+                    selectedBaseId = id;
+                    selectedPieceId = id;
+                    updatePaletteImage();
+                });
+
+                paletteDiv.appendChild(btn);
+            });
+        }
+
+        function updatePaletteImage() {
+            const selectedBtn = paletteDiv.querySelector('button.selected');
+            if (!selectedBtn) return;
+            const img = selectedBtn.querySelector('img');
+            img.src = getPieceImageUrl(trackStyle, selectedPieceId);
+        }
+
+        function buildGrid() {
+            grid.innerHTML = '';
+            for (let i = 0; i < gridSize; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.index = i;
+
+                const img = document.createElement('img');
+                img.width = 100;
+                img.height = 100;
+                img.src = getPieceImageUrl(trackStyle, '11');
+                cell.appendChild(img);
+
+                cell.addEventListener('mousedown', (e) => {
+                    e.preventDefault(); // prevent selection
+                    isMouseDown = true;
+                    updateCell(i, img);
+                });
+
+                cell.addEventListener('mouseenter', () => {
+                    if (isMouseDown) {
+                        updateCell(i, img);
+                    }
+                });
+
+                cell.addEventListener('click', () => {
+                    updateCell(i, img);
+                });
+
+                grid.appendChild(cell);
+            }
+
+            document.addEventListener('mouseup', () => {
+                isMouseDown = false;
+            });
+        }
+
+        function updateCell(index, imgElement) {
+            trackData[index] = selectedPieceId;
+            imgElement.src = getPieceImageUrl(trackStyle, selectedPieceId);
+        }
+
+
+        function updateGridImages() {
+            grid.childNodes.forEach((cell, i) => {
+                const img = cell.querySelector('img');
+                img.src = getPieceImageUrl(trackStyle, trackData[i]);
+            });
+        }
+
+        function loadFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            let loaded = false;
+
+            const mapParam = params.get('map');
+            if (mapParam) {
+                trackStyle = mapParam;
+                trackStyleSelect.value = mapParam;
+            }
+
+            const lapParam = params.get('nl');
+            if (lapParam && !isNaN(parseInt(lapParam)) && parseInt(lapParam) > 0) {
+                lapCount = parseInt(lapParam);
+                lapCountInput.value = lapCount;
+            }
+
+            for (let i = 0; i < gridSize; i++) {
+                const p = params.get('p' + i);
+                if (p !== null) {
+                    trackData[i] = p;
+                    loaded = true;
+                }
+            }
+
+            if (loaded) {
+                updateGridImages();
+            }
+        }
+
+        function generateUrl() {
+            const baseUrl = `https://mkpc.malahieude.net/circuit.php`;
+            const params = new URLSearchParams();
+            params.set('map', trackStyle);
+            const laps = lapCountInput.value;
+            if (laps && !isNaN(parseInt(laps)) && parseInt(laps) > 0) {
+                params.set('nl', laps);
+            } else {
+                params.set('nl', '3');
+            }
+            trackData.forEach((piece, i) => {
+                params.set('p' + i, piece);
+            });
+            const fullUrl = `${baseUrl}?${params.toString()}`;
+            urlOutput.textContent = fullUrl;
+        }
+
+        function rotateSelectedPiece() {
+            selectedPieceId = rotationMap[selectedPieceId] || selectedPieceId;
+            updatePaletteImage();
+        }
+
+        trackStyleSelect.addEventListener('change', () => {
+            trackStyle = trackStyleSelect.value;
+            paletteDiv.querySelectorAll('button').forEach(btn => {
+                const baseId = btn.dataset.baseId;
+                btn.querySelector('img').src = getPieceImageUrl(trackStyle, baseId);
+            });
+            selectedPieceId = selectedBaseId;
+            updatePaletteImage();
+            updateGridImages();
+        });
+
+        lapCountInput.addEventListener('input', () => {
+            lapCount = parseInt(lapCountInput.value);
+            if (isNaN(lapCount) || lapCount < 1) {
+                lapCountInput.value = '1';
+                lapCount = 1;
+            }
+        });
+
+        rotateButton.addEventListener('click', () => {
+            rotateSelectedPiece();
+        });
+
+        document.getElementById('generateUrl').addEventListener('click', generateUrl);
+
+        buildPalette();
+        buildGrid();
+        loadFromUrl();
+        updatePaletteImage();
+
+    </script>
+
+</body>
+
+</html>
