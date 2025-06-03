@@ -60,8 +60,7 @@
         }
 
         .palette button.selected {
-            background-color: #2a9df4;
-            border-color: #2a9df4;
+            border: 4px solid rgb(136, 187, 255);
         }
 
         .palette button .name {
@@ -91,29 +90,40 @@
             margin-right: 10px;
         }
 
-        #generateUrl {
-            padding: 0.5rem 1rem;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
         #urlOutput {
             margin-top: 1rem;
             word-break: break-word;
         }
 
-        #rotateButton {
-            padding: 0.3rem 0.8rem;
-            font-size: 16px;
+        #generateUrl {
             cursor: pointer;
             margin-left: 5px;
+            font-weight: bold;
+            font-size: 20px;
+            background-color: #249;
+            border-color: #57c;
+            color: #abf;
+        }
+
+        .tools {
+            margin-bottom: 1rem;
+        }
+
+        .tools button {
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 20px;
+            background-color: #249;
+            border-color: #57c;
+            color: #abf;
+            width: 120px;
         }
     </style>
 </head>
 
 <body>
     <div>
-        <label for="trackStyle">Track Style (map):</label>
+        <label for="trackStyle">Type:</label>
         <select id="trackStyle">
             <optgroup label="SNES - Circuit">
                 <option value="1" selected="selected">Mario Circuit</option>
@@ -189,7 +199,11 @@
     </div>
 
     <div class="palette" style="margin-top:1rem;">
-        <button id="rotateButton" title="Rotate selected piece">Rotate ⟳</button>
+        <div class="tools">
+            <button id="rotateButton" title="Rotate selected piece">Rotate C</button>
+            <button id="rotateLeftButton" title="Rotate selected piece">Rotate CC</button>
+            <button id="flipButton" title="Flip selected piece">Flip</button>
+        </div>
     </div>
     <div id="grid"></div>
 
@@ -207,7 +221,10 @@
         const trackStyleSelect = document.getElementById('trackStyle');
         const lapCountInput = document.getElementById('lapCount');
         const rotateButton = document.getElementById('rotateButton');
+        const rotateLeftButton = document.getElementById('rotateLeftButton');
+        const flipButton = document.getElementById('flipButton');
 
+        const currentRotationMap = {};
         const rotationMap = {
             '0': '1',
             '1': '2',
@@ -224,6 +241,41 @@
 
             '11': '11',
         };
+        const reverseRotationMap = {
+            '0': '3',
+            '3': '2',
+            '2': '1',
+            '1': '0',
+
+            '4': '7',
+            '7': '6',
+            '6': '5',
+            '5': '4',
+
+            '8': '9',
+            '9': '8',
+
+            '11': '11',
+        };
+
+        const flipMap = {
+            '0': '2',
+            '2': '0',
+
+            '1': '3',
+            '3': '1',
+
+            '4': '5',
+            '5': '4',
+            '6': '7',
+            '7': '6',
+
+            '8': '8',
+            '9': '9',
+
+            '11': '11',
+        };
+
         const basePieces = [
             { id: '0', name: 'Start' },
             { id: '4', name: 'Corner' },
@@ -263,9 +315,10 @@
                     btn.classList.add('selected');
 
                     selectedBaseId = id;
-                    selectedPieceId = id;
+                    selectedPieceId = currentRotationMap[id] || id;
                     updatePaletteImage();
                 });
+
 
                 paletteDiv.appendChild(btn);
             });
@@ -292,7 +345,7 @@
                 cell.appendChild(img);
 
                 cell.addEventListener('mousedown', (e) => {
-                    e.preventDefault(); // prevent selection
+                    e.preventDefault();
                     isMouseDown = true;
                     updateCell(i, img);
                 });
@@ -376,6 +429,17 @@
 
         function rotateSelectedPiece() {
             selectedPieceId = rotationMap[selectedPieceId] || selectedPieceId;
+            currentRotationMap[selectedBaseId] = selectedPieceId;
+            updatePaletteImage();
+        }
+        function rotateSelectedPieceLeft() {
+            selectedPieceId = reverseRotationMap[selectedPieceId] || selectedPieceId;
+            currentRotationMap[selectedBaseId] = selectedPieceId;
+            updatePaletteImage();
+        }
+        function flipSelectedPiece() {
+            selectedPieceId = flipMap[selectedPieceId] || selectedPieceId;
+            currentRotationMap[selectedBaseId] = selectedPieceId;
             updatePaletteImage();
         }
 
@@ -400,6 +464,12 @@
 
         rotateButton.addEventListener('click', () => {
             rotateSelectedPiece();
+        });
+        rotateLeftButton.addEventListener('click', () => {
+            rotateSelectedPieceLeft();
+        });
+        flipButton.addEventListener('click', () => {
+            flipSelectedPiece();
         });
 
         document.getElementById('generateUrl').addEventListener('click', generateUrl);
