@@ -454,6 +454,7 @@
                 params.set('nl', '3');
             }
             trackData.forEach((piece, i) => {
+                piece = remapPieceId(trackStyle, piece);
                 params.set('p' + i, piece);
             });
             const fullUrl = `${baseUrl}?${params.toString()}`;
