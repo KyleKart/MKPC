@@ -197,11 +197,11 @@
 
     <div class="palette" style="margin-top:1rem;">
     </div>
-        <div class="tools">
-            <button id="rotateButton" title="Rotate selected piece" class="mkpcButton">Rotate C</button>
-            <button id="rotateLeftButton" title="Rotate selected piece" class="mkpcButton">Rotate CC</button>
-            <button id="flipButton" title="Flip selected piece" class="mkpcButton">Flip</button>
-        </div>
+    <div class="tools">
+        <button id="rotateButton" title="Rotate selected piece" class="mkpcButton">Rotate C</button>
+        <button id="rotateLeftButton" title="Rotate selected piece" class="mkpcButton">Rotate CC</button>
+        <button id="flipButton" title="Flip selected piece" class="mkpcButton">Flip</button>
+    </div>
     <div id="grid"></div>
 
     <button id="saveImageBtn" class="mkpcButton">Save Track Image</button>
@@ -290,7 +290,16 @@
         let trackStyle = trackStyleSelect.value;
         let lapCount = parseInt(lapCountInput.value);
 
-        const trackData = Array(gridSize).fill('11');
+        let trackData;
+        if (
+            (styleNum >= 9 && styleNum <= 12) ||
+            (styleNum >= 26 && styleNum <= 30) ||
+            (styleNum >= 47 && styleNum <= 51)
+        ) {
+            trackData = Array(gridSize).fill('10');
+        } else {
+            trackData = Array(gridSize).fill('11');
+        }
 
         function getPieceImageUrl(mapStyle, pieceId) {
             return `./pieces/piececircuit${mapStyle}_${pieceId}.png`;
