@@ -445,16 +445,24 @@
             updatePaletteImage();
         }
 
-        trackStyleSelect.addEventListener('change', () => {
-            trackStyle = trackStyleSelect.value;
-            paletteDiv.querySelectorAll('button').forEach(btn => {
-                const baseId = btn.dataset.baseId;
-                btn.querySelector('img').src = getPieceImageUrl(trackStyle, baseId);
-            });
-            selectedPieceId = selectedBaseId;
-            updatePaletteImage();
-            updateGridImages();
-        });
+        let lastTrackStyle = trackStyleSelect.value;
+
+        setInterval(() => {
+            const currentStyle = trackStyleSelect.value;
+            if (currentStyle !== lastTrackStyle) {
+                lastTrackStyle = currentStyle;
+                trackStyle = currentStyle;
+
+                paletteDiv.querySelectorAll('button').forEach(btn => {
+                    const baseId = btn.dataset.baseId;
+                    btn.querySelector('img').src = getPieceImageUrl(trackStyle, baseId);
+                });
+
+                selectedPieceId = selectedBaseId;
+                updatePaletteImage();
+                updateGridImages();
+            }
+        }, 500);
 
         lapCountInput.addEventListener('input', () => {
             lapCount = parseInt(lapCountInput.value);
@@ -491,6 +499,22 @@
         buildGrid();
         loadFromUrl();
         updatePaletteImage();
+        let lastTrackStyleForPalette = trackStyle;
+
+        setInterval(() => {
+            const currentStyle = trackStyleSelect.value;
+            if (currentStyle !== lastTrackStyleForPalette) {
+                lastTrackStyleForPalette = currentStyle;
+                trackStyle = currentStyle;
+
+                paletteDiv.innerHTML = '';
+                buildPalette();
+
+                selectedPieceId = selectedBaseId;
+                updatePaletteImage();
+                updateGridImages();
+            }
+        }, 500);
 
     </script>
 
