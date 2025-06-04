@@ -278,11 +278,11 @@
         };
 
         const basePieces = [
-            { id: '0', name: 'Start' },
-            { id: '4', name: 'Corner' },
-            { id: '8', name: 'Straight' },
-            { id: '10', name: 'Cross' },
-            { id: '11', name: 'Blank' },
+            { id: '0' },
+            { id: '4' },
+            { id: '8' },
+            { id: '10' },
+            { id: '11' },
         ];
 
         let selectedBaseId = '0';
@@ -297,20 +297,15 @@
         }
 
         function buildPalette() {
-            basePieces.forEach(({ id, name }, index) => {
+            basePieces.forEach(({ id }, index) => {
                 const btn = document.createElement('button');
                 btn.dataset.baseId = id;
-                btn.title = `Piece ${id}: ${name}`;
+                btn.title = `${id}`;
                 if (index === 0) btn.classList.add('selected');
 
                 const img = document.createElement('img');
                 img.src = getPieceImageUrl(trackStyle, id);
                 btn.appendChild(img);
-
-                const nameSpan = document.createElement('span');
-                nameSpan.className = 'name';
-                nameSpan.textContent = name;
-                btn.appendChild(nameSpan);
 
                 btn.addEventListener('click', () => {
                     paletteDiv.querySelectorAll('button').forEach(b => b.classList.remove('selected'));
