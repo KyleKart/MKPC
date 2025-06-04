@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>MKPC Track Builder</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -19,6 +20,7 @@
             grid-template-rows: repeat(6, 100px);
             margin-bottom: 1rem;
             gap: 0;
+            width: 600px;
         }
 
         .cell {
@@ -95,14 +97,15 @@
             word-break: break-word;
         }
 
-        #generateUrl {
+        .mkpcButton {
             cursor: pointer;
             margin-left: 5px;
             font-weight: bold;
             font-size: 20px;
-            background-color: #249;
-            border-color: #57c;
-            color: #abf;
+            background-color: #249 !important;
+            border-color: #57c !important;
+            color: #abf !important;
+            padding: 0 !important;
         }
 
         .tools {
@@ -110,12 +113,6 @@
         }
 
         .tools button {
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 20px;
-            background-color: #249;
-            border-color: #57c;
-            color: #abf;
             width: 120px;
         }
     </style>
@@ -200,14 +197,15 @@
 
     <div class="palette" style="margin-top:1rem;">
         <div class="tools">
-            <button id="rotateButton" title="Rotate selected piece">Rotate C</button>
-            <button id="rotateLeftButton" title="Rotate selected piece">Rotate CC</button>
-            <button id="flipButton" title="Flip selected piece">Flip</button>
+            <button id="rotateButton" title="Rotate selected piece" class="mkpcButton">Rotate C</button>
+            <button id="rotateLeftButton" title="Rotate selected piece" class="mkpcButton">Rotate CC</button>
+            <button id="flipButton" title="Flip selected piece" class="mkpcButton">Flip</button>
         </div>
     </div>
     <div id="grid"></div>
 
-    <button id="generateUrl">Generate URL</button>
+    <button id="saveImageBtn" class="mkpcButton">Save Track Image</button>
+    <button id="generateUrl" class="mkpcButton">Generate URL</button>
 
     <p id="urlOutput"></p>
 
@@ -474,6 +472,17 @@
         });
         flipButton.addEventListener('click', () => {
             flipSelectedPiece();
+        });
+
+        document.getElementById("saveImageBtn").addEventListener("click", () => {
+            const trackElement = document.getElementById("grid");
+
+            html2canvas(trackElement).then(canvas => {
+                const link = document.createElement("a");
+                link.download = "track.png";
+                link.href = canvas.toDataURL();
+                link.click();
+            });
         });
 
         document.getElementById('generateUrl').addEventListener('click', generateUrl);
