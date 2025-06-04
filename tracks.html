@@ -301,9 +301,37 @@
             trackData = Array(gridSize).fill('11');
         }
 
-        function getPieceImageUrl(mapStyle, pieceId) {
-            return `./pieces/piececircuit${mapStyle}_${pieceId}.png`;
+        function remapPieceId(trackStyle, pieceId) {
+            const styleNum = Number(trackStyle);
+            let id = String(pieceId);
+
+            const battleRanges = [
+                [9, 12],
+                [26, 30],
+                [47, 51],
+            ];
+
+            const isBattleStyle = battleRanges.some(
+                ([min, max]) => styleNum >= min && styleNum <= max
+            );
+
+            if (isBattleStyle) {
+                if (id === '8') return '9';
+                if (id === '9') return '8';
+
+                if (id === '10') return '11';
+                if (id === '11') return '10';
+            }
+
+            return id;
         }
+
+
+        function getPieceImageUrl(trackStyle, pieceId) {
+            pieceId = remapPieceId(trackStyle, pieceId);
+            return `./pieces/piececircuit${trackStyle}_${pieceId}.png`;
+        }
+
 
         function buildPalette() {
             basePieces.forEach(({ id }, index) => {
@@ -378,7 +406,6 @@
             trackData[index] = selectedPieceId;
             imgElement.src = getPieceImageUrl(trackStyle, selectedPieceId);
         }
-
 
         function updateGridImages() {
             grid.childNodes.forEach((cell, i) => {
