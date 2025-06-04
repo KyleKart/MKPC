@@ -289,6 +289,7 @@
         let selectedPieceId = '0';
         let trackStyle = trackStyleSelect.value;
         let lapCount = parseInt(lapCountInput.value);
+        let styleNum = Number(trackStyle);
 
         let trackData;
         if (
@@ -301,8 +302,7 @@
             trackData = Array(gridSize).fill('11');
         }
 
-        function remapPieceId(trackStyle, pieceId) {
-            const styleNum = Number(trackStyle);
+        function remapPieceId(pieceId) {
             let id = String(pieceId);
 
             const battleRanges = [
@@ -328,7 +328,7 @@
 
 
         function getPieceImageUrl(trackStyle, pieceId) {
-            pieceId = remapPieceId(trackStyle, pieceId);
+            pieceId = remapPieceId(pieceId);
             return `./pieces/piececircuit${trackStyle}_${pieceId}.png`;
         }
 
@@ -454,7 +454,7 @@
                 params.set('nl', '3');
             }
             trackData.forEach((piece, i) => {
-                piece = remapPieceId(trackStyle, piece);
+                piece = remapPieceId(piece);
                 params.set('p' + i, piece);
             });
             const fullUrl = `${baseUrl}?${params.toString()}`;
