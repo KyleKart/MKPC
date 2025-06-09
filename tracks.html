@@ -200,11 +200,10 @@
 
         <label for="lapCount">Laps:</label>
         <input type="number" id="lapCount" min="1" max="9" value="3" style="width: 60px" />
-        <label for="themeMode">Theme Mode:</label>
-        <select id="themeMode">
-            <option value="single" selected>Single Theme</option>
-            <option value="mixed">Mix Themes</option>
-        </select>
+        <label>
+            <input type="checkbox" id="mixModeCheckbox">
+            Mix Track Themes
+        </label>
     </div>
 
     <div class="palette" style="margin-top:1rem;">
@@ -304,15 +303,11 @@
         let styleNum = Number(trackStyle);
 
         let trackData;
-        if (
-            (styleNum >= 9 && styleNum <= 12) ||
-            (styleNum >= 26 && styleNum <= 30) ||
-            (styleNum >= 47 && styleNum <= 51)
-        ) {
-            trackData = Array(gridSize).fill('10');
-        } else {
-            trackData = Array(gridSize).fill('11');
-        }
+        trackData = Array(gridSize).fill().map(() => ({
+            pieceId: '11',
+            style: trackStyle
+        }));
+
 
         function remapPieceId(pieceId) {
             let id = String(pieceId);
@@ -416,14 +411,19 @@
         }
 
         function updateCell(index, imgElement) {
-            trackData[index] = selectedPieceId;
-            imgElement.src = getPieceImageUrl(trackStyle, selectedPieceId);
+            trackData[index] = {
+                pieceId: selectedPieceId,
+                style: mixModeCheckbox.checked ? trackStyleSelect.value : trackStyle
+            };
+            imgElement.src = getPieceImageUrl(trackData[index].style, selectedPieceId);
         }
+
 
         function updateGridImages() {
             grid.childNodes.forEach((cell, i) => {
                 const img = cell.querySelector('img');
-                img.src = getPieceImageUrl(trackStyle, trackData[i]);
+                const { pieceId, style } = trackData[i];
+                img.src = getPieceImageUrl(style, pieceId);
             });
         }
 
@@ -498,14 +498,16 @@
                 lastTrackStyle = currentStyle;
                 trackStyle = currentStyle;
 
-                paletteDiv.querySelectorAll('button').forEach(btn => {
-                    const baseId = btn.dataset.baseId;
-                    btn.querySelector('img').src = getPieceImageUrl(trackStyle, baseId);
-                });
+                if (!mixModeCheckbox.checked) {
+                    paletteDiv.querySelectorAll('button').forEach(btn => {
+                        const baseId = btn.dataset.baseId;
+                        btn.querySelector('img').src = getPieceImageUrl(trackStyle, baseId);
+                    });
 
-                selectedPieceId = selectedBaseId;
-                updatePaletteImage();
-                updateGridImages();
+                    selectedPieceId = selectedBaseId;
+                    updatePaletteImage();
+                    updateGridImages();
+                }
             }
         }, 300);
 
@@ -538,14 +540,11 @@
             });
         });
 
-        const themeModeSelect = document.getElementById('themeMode');
-        const generateBtn = document.getElementById('generateUrl');
+        const mixModeCheckbox = document.getElementById('mixModeCheckbox');
+        const generateUrlBtn = document.getElementById('generateUrl');
 
-        themeModeSelect.addEventListener('change', () => {
-            const isMixed = themeModeSelect.value === 'mixed';
-            generateBtn.disabled = isMixed;
-            generateBtn.style.opacity = isMixed ? 0.5 : 1;
-            generateBtn.title = isMixed ? 'Disabled when using Mix Themes mode' : '';
+        mixModeCheckbox.addEventListener('change', () => {
+            generateUrlBtn.disabled = mixModeCheckbox.checked;
         });
         document.getElementById('generateUrl').addEventListener('click', generateUrl);
 
