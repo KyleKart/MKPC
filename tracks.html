@@ -471,7 +471,7 @@
                 params.set('p' + i, remappedId);
             });
             const fullUrl = `${baseUrl}?${params.toString()}`;
-            urlOutput.innerHTML = `<a href="${fullUrl}">${fullUrl}</a>`;
+            urlOutput.innerHTML = `<a href="${fullUrl}" target="_blank">${fullUrl}</a>`;
         }
 
         function rotateSelectedPiece() {
