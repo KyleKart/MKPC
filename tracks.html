@@ -202,7 +202,10 @@
         <input type="number" id="lapCount" min="1" max="9" value="3" style="width: 60px" />
         <label>
             <input type="checkbox" id="mixModeCheckbox">
-            Mix Track Themes
+            Illegal Track
+        </label>
+        <label id="gridSizeContainer" style="display: none; margin-left: 10px;">
+            Grid Size: <input type="number" id="gridSizeInput" min="2" max="12" value="6" style="width: 40px;">
         </label>
     </div>
 
@@ -222,7 +225,7 @@
 
     <script>
         let isMouseDown = false;
-        const gridSize = 36;
+        let gridSize = 36;
         const grid = document.getElementById('grid');
         const paletteDiv = document.querySelector('.palette');
         const rotateDiv = document.getElementById('rotateButton');
@@ -542,9 +545,17 @@
 
         const mixModeCheckbox = document.getElementById('mixModeCheckbox');
         const generateUrlBtn = document.getElementById('generateUrl');
+        const gridSizeContainer = document.getElementById('gridSizeContainer');
+        const gridSizeInput = document.getElementById('gridSizeInput');
 
         mixModeCheckbox.addEventListener('change', () => {
             generateUrlBtn.disabled = mixModeCheckbox.checked;
+            gridSizeContainer.style.display = mixModeCheckbox.checked ? 'inline-block' : 'none';
+
+            if (!mixModeCheckbox.checked) {
+                gridSizeInput.value = 6;
+                changeGridSize(6);
+            }
         });
         document.getElementById('generateUrl').addEventListener('click', generateUrl);
 
@@ -569,6 +580,26 @@
             }
         }, 300);
 
+        gridSizeInput.addEventListener('change', () => {
+            if (mixModeCheckbox.checked) {
+                changeGridSize(parseInt(gridSizeInput.value));
+            }
+        });
+
+        function changeGridSize(size) {
+            gridSize = size * size;
+
+            grid.style.gridTemplateColumns = `repeat(${size}, 100px)`;
+            grid.style.gridTemplateRows = `repeat(${size}, 100px)`;
+            grid.style.width = `${size * 100}px`;
+
+            trackData = Array(gridSize).fill().map(() => ({
+                pieceId: '11',
+                style: trackStyle
+            }));
+
+            buildGrid();
+        }
     </script>
 
 </body>
