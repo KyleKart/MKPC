@@ -122,6 +122,20 @@
             border-color: #888 !important;
             color: #ccc !important;
         }
+
+        .overlap-half #grid {
+            gap: -50px;
+        }
+
+        .overlap-half .cell {
+            margin-right: -50px;
+            margin-bottom: -50px;
+            position: relative;
+        }
+
+        .overlap-half .cell:hover {
+            z-index: 10;
+        }
     </style>
 </head>
 
@@ -212,6 +226,10 @@
         <label id="gridSizeContainer" style="display: none; margin-left: 10px;">
             Grid Size: <input type="number" id="gridSizeInput" min="3" max="12" value="6" style="width: 40px;">
         </label>
+        <label>
+            <input type="checkbox" id="overlapCheckbox">
+            Overlapping
+        </label>
     </div>
 
     <div class="palette" style="margin-top:1rem;">
@@ -240,6 +258,16 @@
         const rotateButton = document.getElementById('rotateButton');
         const rotateLeftButton = document.getElementById('rotateLeftButton');
         const flipButton = document.getElementById('flipButton');
+
+        const overlapCheckbox = document.getElementById('overlapCheckbox');
+
+        overlapCheckbox.addEventListener('change', () => {
+            if (overlapCheckbox.checked) {
+                grid.classList.add('overlap-half');
+            } else {
+                grid.classList.remove('overlap-half');
+            }
+        });
 
         const currentRotationMap = {};
         const rotationMap = {
